@@ -2,7 +2,8 @@
 
 export PS4=' \[\e[0;34m(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }\e[m\]'
 SED_PROGRAM="/^Config file:/ { s/^.*:\s\+\(\S\+\)/\1/; s|\\\\|/|gp }"
-vbmg () { VBoxManage.exe "$@"; }
+
+vbmg () { /mnt/c/Program\ Files/Oracle/VirtualBox/VBoxManage.exe "$@"; }
 NET_NAME="net_4640"
 VM_NAME="VM_ACIT4640"
 PXE_NAME="PXE_4640"
@@ -23,7 +24,8 @@ CreateNet(){
                     --dhcp off \
                     --port-forward-4 "http:tcp:[]:50080:[192.168.250.10]:80" \
                     --port-forward-4 "https:tcp:[]:50443:[192.168.250.10]:443" \
-                    --port-forward-4 "ssh:tcp:[]:50022:[192.168.250.10]:22" 
+                    --port-forward-4 "ssh:tcp:[]:50022:[192.168.250.10]:22" \
+                    --port-forward-4 "ssh_PXE:tcp:[]:50222:[192.168.250.200]:22" 
     echo "---------------NAT Network has been created."
 }
 
@@ -31,11 +33,14 @@ CreateNet(){
 CreateVM(){
     vbmg createvm --name "$VM_NAME" --ostype "RedHat_64" --register
     vbmg modifyvm "$VM_NAME" \
-                --cpus 1 --memory 1024 \
+                --cpus 1 --memory 2048 \
                 --nic1 natnetwork \
                 --nat-network1 "$NET_NAME" \
                 --mouse usbtablet \
-                --audio none
+                --cableconnected1 on \
+                --audio none \
+                --boot1 disk \
+                --boot2 net
 
     echo "---------------An empty VM has been created"
 }
@@ -55,23 +60,47 @@ ConfigureVMSettings(){
                 --device 0 \
                 --type hdd \
                 --medium "$VM_DIR"/"$VM_NAME".vdi
-
-    #Add IDE controller for ISO
-    vbmg storagectl "$VM_NAME" --name "IDE Controller" --add ide --controller PIIX4
-    
-    vbmg storageattach "$VM_NAME" \
-                --storagectl "IDE Controller" \
-                --port 1 \
-                --device 0 \
-                --type dvddrive\
-                --medium C:/Users/Jay/Downloads/CentOS-7-x86_64-Minimal-1810.iso
     
     echo "---------------VM configuration is completed"
 }
+#----------------------module-04--------------------
+StartPXE()
+{
+    chmod 600 acit_admin_id_rsa
+    if ! vbmg showvminfo $PXE_NAME | grep -c "running (since"
+        then
+            vbmg startvm $PXE_NAME
+    fi
 
+    while /bin/true; do
+            ssh -i acit_admin_id_rsa -p 50222 -o ConnectTimeout=3s -o StrictHostKeyChecking=no -q admin@localhost exit
+            if [ $? -ne 0 ]; then
+                    echo "PXE server is not up, sleeping..."
+                    sleep 3s
+            else
+                    break
+            fi
+    done
+}
+
+SetupAppVM(){
+    #ssh -i acit_admin_id_rsa -p 50222 admin@localhost "sudo rm -rf /var/www/lighttpd/ks.cfg"
+    scp -i acit_admin_id_rsa -P 50222  admin@localhost:/var/www/lighttpd/
+    scp -i acit_admin_id_rsa -P 50222 acit_admin_id_rsa ks.cfg admin@localhost:/home/admin/
+    ssh -i acit_admin_id_rsa -p 50222 admin@localhost "sudo mv /home/admin/ks.cfg /var/www/lighttpd/"
+    ssh -i acit_admin_id_rsa -p 50222 admin@localhost "sudo chmod 755 /var/www/lighttpd/ks.cfg"
+    
+    vbmg startvm $VM_NAME
+}
+
+
+
+# Module 02
 CleanAll
 CreateNet
 CreateVM
 ConfigureVMSettings
 
-
+# Module 04
+StartPXE
+SetupAppVM

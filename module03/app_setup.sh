@@ -41,7 +41,7 @@ systemctl enable mongod && systemctl start mongod
 
 su todo-app -c "mkdir ~/app"
 cd /home/todo-app/app
-su todo-app -c "git clone https://github.com/timoguic/ACIT4640-todo-app.git"
+su todo-app -c "git clone https://github.com/timoguic/ACIT4640-todo-app.git ."
 
 cd ACIT4640-todo-app
 su todo-app -c "npm install"
@@ -56,7 +56,7 @@ sed -i "s#^[^#]*error_page 404#\tlocation /api/todos { proxy_pass http://localho
 systemctl restart nginx
 
 # Running NodeJS as a daemon with systemd
-printf "[Unit]\nDescription=Todo app, ACIT4640\nAfter=network.target\n\n[Service]\nEnvironment=NODE_PORT=8080\nWorkingDirectory=/home/todo-app/app\nType=simple\nUser=todo-app\nExecStart=/usr/bin/node /home/todo-app/app/ACIT4640-todo-app/server.js\nRestart=always\n\n[Install]\nWantedBy=multi-user.target" > /lib/systemd/system/todoapp.service
+printf "[Unit]\nDescription=Todo app, ACIT4640\nAfter=network.target\n\n[Service]\nEnvironment=NODE_PORT=8080\nWorkingDirectory=/home/todo-app/app\nType=simple\nUser=todo-app\nExecStart=/usr/bin/node /home/todo-app/app/server.js\nRestart=always\n\n[Install]\nWantedBy=multi-user.target" > /lib/systemd/system/todoapp.service
 systemctl daemon-reload
 systemctl enable todoapp
 systemctl start todoapp
