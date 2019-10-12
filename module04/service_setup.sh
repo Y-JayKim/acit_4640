@@ -7,8 +7,6 @@ vbmg () { /mnt/c/Program\ Files/Oracle/VirtualBox/VBoxManage.exe "$@"; }
 NET_NAME="net_4640"
 VM_NAME="VM_ACIT4640"
 PXE_NAME="PXE_4640"
-VBOX_FILE=$(vbmg showvminfo "$VM_NAME" | sed -ne "$SED_PROGRAM")
-VM_DIR=$(dirname "$VBOX_FILE")
 
 #Delete NAT and VM
 CleanAll(){
@@ -47,6 +45,8 @@ CreateVM(){
 
 # Rest of VM Configuration
 ConfigureVMSettings(){
+    VBOX_FILE=$(vbmg showvminfo "$VM_NAME" | sed -ne "$SED_PROGRAM")
+    VM_DIR=$(dirname "$VBOX_FILE")
     
     #Creating VDI
     vbmg createmedium disk --filename "$VM_DIR"/"$VM_NAME".vdi --size 10000
