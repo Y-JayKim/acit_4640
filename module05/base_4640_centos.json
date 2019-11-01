@@ -1,7 +1,7 @@
 {
     "description": "Packer basebox for 4640",
     "variables": {
-        "admin_passwd": "temporary",
+        "admin_passwd": "P@ssw0rd",
         "root_passwd": "P@ssw0rd",
         "admin_user": "admin",
         "initial_admin_passwd": "temporary",
