@@ -1,0 +1,122 @@
+---
+- hosts: all
+  vars:
+    app_user_name: todo-app
+    packages:
+    - kexec-tools
+    - epel-release
+    - git
+    - nodejs
+    - npm
+    - nginx
+    - mongodb-server
+    
+  tasks:
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+      become: yes
+    
+    - name: install packages
+      package:
+        name: "{{  packages  }}"
+        state: present
+      become: yes
+      
+    - name: copy "nginx.conf" file
+      copy:
+        src: ../files/nginx.conf
+        dest: /etc/nginx/nginx.conf
+        owner: root
+        mode: 0744
+      become: yes
+
+    - name: copy "todoapp.service" file
+      copy:
+        src: ../files/todoapp.service
+        dest: /lib/systemd/system/todoapp.service
+        owner: root
+        mode: 0744
+      become: yes
+
+    - name: Add the app user with a bash shell.
+      user:
+        name: "{{ app_user_name }}"
+        shell: /bin/bash
+      become: yes
+
+    - name: Change permissions to app home directory
+      file:
+        path: ~/
+        owner: "{{ app_user_name }}"
+        group: "{{ app_user_name }}"
+        mode: '0777'
+      become: true
+      become_user: "{{ app_user_name }}"
+
+    - name: Create a directory if it does not exist
+      file:
+        path: ~/app
+        state: directory
+        mode: '0777'
+      become: true
+      become_user: "{{ app_user_name }}"
+    
+    - git:
+        repo: 'https://github.com/timoguic/ACIT4640-todo-app.git'
+        dest: ~/app/.
+      become: true
+      become_user: "{{ app_user_name }}"
+    
+    - name: Install npm packages.
+      npm:
+        path: ~/app/
+      become: true
+      become_user: "{{ app_user_name }}"
+
+    - name: run the "provisioning.sh" script
+      script: ../files/provisioning.sh
+      become: true
+
+    - firewalld:
+        service: http
+        immediate: yes
+        permanent: yes
+        zone: public
+        state: enabled
+      become: true
+
+    - name: just force systemd to reread configs
+      systemd:
+        daemon_reload: yes
+      become: true
+    
+    - name: Enable nginx service
+      service:
+        name: nginx
+        enabled: yes
+      become: yes
+
+    - name: Enable todoapp service
+      service:
+        name: todoapp
+        enabled: yes
+      become: yes
+
+    - name: reload nginx service
+      service:
+        name: nginx
+        state: reloaded
+      become: yes
+
+    - name: start mongod service
+      service:
+        name: mongod
+        state: started
+      become: yes
+
+    - name: start todoapp service
+      service:
+        name: todoapp
+        state: started
+      become: yes

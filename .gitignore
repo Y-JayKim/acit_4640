@@ -1,3 +1,9 @@
 module05/isos/CentOS-7-x86_64-Minimal-1810.iso
+module05/isos/
 module06/.vagrant
 module06/base_4640.box
+module06/files/acit_admin_id_rsa
+module06/isos/
+module07/ansible_4640.box
+module07/.vagrant
+module07/ansible_4640.box
