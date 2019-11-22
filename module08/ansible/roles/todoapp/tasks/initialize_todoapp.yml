@@ -1,0 +1,46 @@
+---
+  - name: Change permissions of app home directory
+    file:
+      path: /home/{{ app_user }}
+      owner: '{{ app_user }}'
+      group: '{{ app_user }}'
+      mode: '0777'
+    become: true
+    become_user: "{{ app_user }}"
+
+  - name: Create a directory if it does not exist
+    file:
+      path: ~/app
+      state: directory
+      mode: '0777'
+    become_user: '{{ app_user }}'
+
+  - name: Git clone acit4640-todo-app
+    git:
+      repo: '{{  repo_url  }}'
+      dest: ~/app/.
+    become_user: '{{ app_user }}'
+
+  - name: Install npm packages.
+    npm:
+      path: ~/app/
+    become_user: '{{ app_user }}'
+
+  - name: Copy database file
+    template:
+      src: '{{ db_template_location }}'
+      dest: '{{ db_destination_location }}'
+      owner: todo-app
+      group: todo-app
+      mode: '0777'
+  
+  - name: Change permissions of app folder
+    file:
+      path: /home/{{ app_user }}/app
+      state: directory
+      recurse: yes
+      owner: '{{ app_user }}'
+      group: '{{ app_user }}'
+      mode: '0777'
+    become: true
+    become_user: "{{ app_user }}"

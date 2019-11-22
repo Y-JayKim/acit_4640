@@ -1,0 +1,9 @@
+---
+- name: Create TodoApp user
+  include_tasks: create_user.yml
+- name: Initialize todoapp
+  include_tasks: initialize_todoapp.yml
+- name: Modify Nginx config file
+  include_tasks: modify_nginx_config.yml
+- name: Create Todoapp service
+  include_tasks: create_service.yml

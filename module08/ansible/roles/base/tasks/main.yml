@@ -1,0 +1,24 @@
+---
+- name: Install Git
+  include_role:
+    name: git
+
+- name: Initialize Nginx
+  include_role:
+    name: nginx
+
+- name: Disable SELinux
+  include_role:
+    name: no_selinux
+    
+- name: Initialize MongoDB Server
+  include_role:
+    name: mongo_server
+
+- name: Install Node.js
+  include_role:
+    name: nodejs
+
+- name: Install Npm
+  include_role:
+    name: npm

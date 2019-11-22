@@ -1,0 +1,15 @@
+---
+app_user: 'todo-app'
+db_template_location: 'roles/todoapp/templates/database.j2'
+db_destination_location: '/home/todo-app/app/config/database.js'
+repo_url: 'https://github.com/timoguic/ACIT4640-todo-app.git'
+nginx_template_location: 'roles/todoapp/templates/nginx_conf.j2'
+nginx_destination_location: '/etc/nginx/nginx.conf'
+service_template_location: 'roles/todoapp/templates/todoapp_service.j2'
+service_destination_location: '/lib/systemd/system/todoapp.service'
+
+mongo_hostname: 'localhost'
+mongodb_instance: 'acit4640'
+nginx_root: '/home/todo-app/app/public'
+http_port: 8080
+index_file_name: 'index.html'

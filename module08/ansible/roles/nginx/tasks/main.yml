@@ -1,0 +1,24 @@
+---
+- name: Install nginx package
+  package:
+    name: nginx
+    state: present
+
+- name: Allow http for firewall
+  firewalld:
+    service: http
+    immediate: yes
+    permanent: yes
+    zone: public
+    state: enabled
+    
+- name: Start nginx service
+  service:
+    name: nginx
+    enabled: yes
+    state: started
+
+- name: Enable nginx service
+  service:
+    name: nginx
+    enabled: yes

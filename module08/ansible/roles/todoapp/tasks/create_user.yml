@@ -1,0 +1,5 @@
+---
+- name: Add the app user
+  user:
+    name: todo-app
+    shell: /bin/bash

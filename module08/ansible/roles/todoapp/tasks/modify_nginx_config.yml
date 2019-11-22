@@ -1,0 +1,14 @@
+---
+  - name: Copy nginx configuration file
+    template:
+      src: '{{ nginx_template_location }}'
+      dest: '{{ nginx_destination_location }}'
+      mode: '0744'
+      owner: root
+      group: root
+
+  - name: Reload nginx config file
+    service:
+      name: nginx
+      state: reloaded
+      enabled: yes

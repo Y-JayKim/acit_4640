@@ -6,4 +6,5 @@ module06/files/acit_admin_id_rsa
 module06/isos/
 module07/ansible_4640.box
 module07/.vagrant
-module07/ansible_4640.box
+module08/ansible_4640.box
+module08/.vagrant

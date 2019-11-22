@@ -1,0 +1,20 @@
+---
+  - name: Copy todoapp service configuration file
+    template:
+      src: '{{ service_template_location }}'
+      dest: '{{ service_destination_location }}'
+
+  - name: Reload created service daemons
+    systemd:
+      daemon_reload: yes
+
+  - name: Start and enable todoapp
+    service:
+      name: todoapp
+      enabled: yes
+      state: started
+
+  - name: Change permissions of config file
+    file:
+      path: '{{ service_destination_location }}'
+      mode: '0744'
